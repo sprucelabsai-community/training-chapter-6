@@ -1,0 +1,98 @@
+{
+  "name": "8-bit-stories",
+  "description": "Epic bedtime stories for epic families!",
+  "version": "0.0.1",
+  "skill": {
+    "namespace": "eightbitstories",
+    "version": "v2024_09_19"
+  },
+  "homepage": "https://github.com/[YOUR REPO PATH]",
+  "bugs": {
+    "url": "https://github.com/[YOUR REPO PATH]/issues"
+  },
+  "keywords": [],
+  "scripts": {
+    "boot": "node build/index",
+    "boot.local": "node -r ts-node/register -r tsconfig-paths/register ./src/index",
+    "health": "yarn boot --health",
+    "health.local": "yarn boot.local --health",
+    "build.ci": "yarn run build.tsc && yarn run build.resolve-paths && yarn run lint",
+    "build.dev": "yarn run build.tsc --sourceMap ; yarn run resolve-paths.lint",
+    "build.copy-files": "mkdir -p build && rsync -avzq --exclude='*.ts' ./src/ ./build/",
+    "build.resolve-paths": "resolve-path-aliases --target build --patterns '**/*.js,**/*.d.ts'",
+    "build.tsc": "yarn run build.copy-files && tsc",
+    "clean": "yarn run clean.build",
+    "clean.all": "yarn run clean.dependencies && yarn run clean.build",
+    "clean.build": "rm -rf build/",
+    "clean.dependencies": "rm -rf node_modules/ package-lock.json yarn.lock",
+    "fix.lint": "eslint --fix --cache '**/*.ts'",
+    "lint": "eslint --cache '**/*.ts'",
+    "lint.tsc": "tsc -p . --noEmit",
+    "post.watch.build": "yarn run build.copy-files && yarn run build.resolve-paths",
+    "rebuild": "yarn run clean.all && yarn install && yarn run build.dev",
+    "update.dependencies": "yarn run clean.dependencies && yarn",
+    "resolve-paths.lint": "yarn run build.resolve-paths ; yarn run lint",
+    "test": "jest",
+    "watch.build.dev": "tsc-watch --sourceMap --onCompilationComplete 'yarn run post.watch.build'",
+    "watch.rebuild": "yarn run clean.all && yarn install && yarn run watch.build.dev",
+    "watch.tsc": "tsc -w"
+  },
+  "dependencies": {
+    "@sprucelabs/data-stores": "^28.3.154",
+    "@sprucelabs/error": "^6.0.491",
+    "@sprucelabs/globby": "^2.0.452",
+    "@sprucelabs/heartwood-view-controllers": "^110.12.177",
+    "@sprucelabs/mercury-client": "^42.0.540",
+    "@sprucelabs/mercury-core-events": "^24.3.302",
+    "@sprucelabs/mercury-types": "^47.0.542",
+    "@sprucelabs/schema": "^30.0.501",
+    "@sprucelabs/spruce-core-schemas": "^40.1.487",
+    "@sprucelabs/spruce-event-plugin": "^62.3.57",
+    "@sprucelabs/spruce-event-utils": "^40.1.262",
+    "@sprucelabs/spruce-permission-plugin": "^31.0.628",
+    "@sprucelabs/spruce-skill-booter": "^62.3.57",
+    "@sprucelabs/spruce-skill-utils": "^31.0.560",
+    "@sprucelabs/spruce-store-plugin": "^62.3.57",
+    "@sprucelabs/spruce-view-plugin": "^47.0.629",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@sprucelabs/jest-json-reporter": "^8.0.491",
+    "@sprucelabs/resolve-path-aliases": "^2.0.469",
+    "@sprucelabs/spruce-test-fixtures": "^62.3.57",
+    "@sprucelabs/test": "^9.0.54",
+    "@sprucelabs/test-utils": "^5.1.445",
+    "@types/node": "^22.7.7",
+    "chokidar-cli": "^3.0.0",
+    "eslint": "^9.13.0",
+    "eslint-config-spruce": "^11.2.26",
+    "jest": "^29.7.0",
+    "jest-circus": "^29.7.0",
+    "prettier": "^3.3.3",
+    "ts-node": "^10.9.2",
+    "tsc-watch": "^6.2.0",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "yarn": "1.x"
+  },
+  "jest": {
+    "testRunner": "jest-circus/runner",
+    "maxWorkers": 4,
+    "testTimeout": 120000,
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": [
+      "<rootDir>/tmp/",
+      "<rootDir>/src/",
+      "<rootDir>/node_modules/",
+      "<rootDir>/build/__tests__/testDirsAndFiles/"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.test.js?(x)"
+    ],
+    "moduleNameMapper": {
+      "^#spruce/(.*)$": "<rootDir>/build/.spruce/$1"
+    }
+  }
+}
