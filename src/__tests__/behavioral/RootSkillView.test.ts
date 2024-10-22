@@ -88,6 +88,12 @@ export default class RootSkillViewTest extends AbstractEightBitTest {
         await this.assertClickingRedirects('members', 'eightbitstories.members')
     }
 
+    @test()
+    protected static async clickingWriteStorieRedirectsToGenerateSkillView() {
+        await this.load()
+        await this.assertClickingRedirects('write', 'eightbitstories.generate')
+    }
+
     private static async assertClickingRedirects(
         button: string,
         destination: SkillViewControllerId

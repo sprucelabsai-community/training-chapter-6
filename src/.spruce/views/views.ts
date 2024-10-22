@@ -1,5 +1,6 @@
 import FamilySkillViewController from '../../family/Family.svc'
 import MembersSkillViewController from '../../members/Members.svc'
+import GenerateSkillViewController from '../../skillViewControllers/Generate.svc'
 import RootSkillViewController from '../../skillViewControllers/Root.svc'
 import FeedbackCardViewController from '../../feedback/FeedbackCard.vc'
 import FamilyMemberFormCardViewController from '../../members/FamilyMemberFormCard.vc'
@@ -9,6 +10,7 @@ import '@sprucelabs/heartwood-view-controllers'
 const vcs = {
     FamilySkillViewController,
     MembersSkillViewController,
+    GenerateSkillViewController,
     RootSkillViewController,
     FeedbackCardViewController,
     FamilyMemberFormCardViewController,
@@ -23,12 +25,14 @@ declare module '@sprucelabs/heartwood-view-controllers/build/types/heartwood.typ
 	interface SkillViewControllerMap {
 		'eightbitstories.family': FamilySkillViewController
 		'eightbitstories.members': MembersSkillViewController
+		'eightbitstories.generate': GenerateSkillViewController
 		'eightbitstories.root': RootSkillViewController
 	}
 
 	interface SkillViewControllerArgsMap {
 		'eightbitstories.family': LoadOptions<Parameters<FamilySkillViewController['load']>>
 		'eightbitstories.members': LoadOptions<Parameters<MembersSkillViewController['load']>>
+		'eightbitstories.generate': LoadOptions<Parameters<GenerateSkillViewController['load']>>
 		'eightbitstories.root': LoadOptions<Parameters<RootSkillViewController['load']>>
 	}
 
@@ -37,6 +41,7 @@ declare module '@sprucelabs/heartwood-view-controllers/build/types/heartwood.typ
 		'eightbitstories.family-member-form-card': FamilyMemberFormCardViewController
 		'eightbitstories.family': FamilySkillViewController
 		'eightbitstories.members': MembersSkillViewController
+		'eightbitstories.generate': GenerateSkillViewController
 		'eightbitstories.root': RootSkillViewController
 	}
 

@@ -47,12 +47,17 @@ export default class RootSkillViewController extends AbstractSkillViewController
                                 id: 'write',
                                 label: 'Write Story',
                                 type: 'primary',
+                                onClick: this.handleClickWrite.bind(this),
                             },
                         ],
                     },
                 ],
             },
         })
+    }
+
+    private async handleClickWrite() {
+        await this.router?.redirect('eightbitstories.generate')
     }
 
     private async handleClickFamilyMembers() {
