@@ -5,6 +5,7 @@ import {
     CardViewController,
     SkillViewControllerLoadOptions,
     Router,
+    buildSkillViewLayout,
 } from '@sprucelabs/heartwood-view-controllers'
 
 export default class GenerateSkillViewController extends AbstractSkillViewController {
@@ -72,17 +73,17 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
     }
 
     public render(): SkillView {
-        return {
-            layouts: [
-                {
-                    cards: [
-                        this.storyElementsCardVc.render(),
-                        this.currentChallengeCardVc.render(),
-                        this.familyMembersCardVc.render(),
-                        this.controlsCardVc.render(),
-                    ],
-                },
+        const skillView = buildSkillViewLayout('big-left', {
+            leftCards: [
+                this.storyElementsCardVc.render(),
+                this.currentChallengeCardVc.render(),
             ],
-        }
+            rightCards: [
+                this.familyMembersCardVc.render(),
+                this.controlsCardVc.render(),
+            ],
+        })
+
+        return skillView
     }
 }
