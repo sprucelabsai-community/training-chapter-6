@@ -4,6 +4,7 @@ import GenerateSkillViewController from '../../skillViewControllers/Generate.svc
 import RootSkillViewController from '../../skillViewControllers/Root.svc'
 import FeedbackCardViewController from '../../feedback/FeedbackCard.vc'
 import FamilyMemberFormCardViewController from '../../members/FamilyMemberFormCard.vc'
+import StoryElementsCardViewController from '../../viewControllers/StoryElementsCard.vc'
 
 import '@sprucelabs/heartwood-view-controllers'
 
@@ -14,6 +15,7 @@ const vcs = {
     RootSkillViewController,
     FeedbackCardViewController,
     FamilyMemberFormCardViewController,
+    StoryElementsCardViewController,
 }
 
 export const pluginsByName = {
@@ -39,6 +41,7 @@ declare module '@sprucelabs/heartwood-view-controllers/build/types/heartwood.typ
 	interface ViewControllerMap {
 		'eightbitstories.feedback-card': FeedbackCardViewController
 		'eightbitstories.family-member-form-card': FamilyMemberFormCardViewController
+		'eightbitstories.story-elements-card': StoryElementsCardViewController
 		'eightbitstories.family': FamilySkillViewController
 		'eightbitstories.members': MembersSkillViewController
 		'eightbitstories.generate': GenerateSkillViewController
@@ -48,6 +51,7 @@ declare module '@sprucelabs/heartwood-view-controllers/build/types/heartwood.typ
     interface ViewControllerOptionsMap {
 		'eightbitstories.feedback-card': ConstructorParameters<typeof FeedbackCardViewController>[0]
 		'eightbitstories.family-member-form-card': ConstructorParameters<typeof FamilyMemberFormCardViewController>[0]
+		'eightbitstories.story-elements-card': ConstructorParameters<typeof StoryElementsCardViewController>[0]
 	}
 
 	interface ViewControllerPlugins {

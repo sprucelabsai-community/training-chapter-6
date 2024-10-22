@@ -7,40 +7,29 @@ import {
     Router,
     buildSkillViewLayout,
 } from '@sprucelabs/heartwood-view-controllers'
+import StoryElementsCardViewController from '../viewControllers/StoryElementsCard.vc'
 
 export default class GenerateSkillViewController extends AbstractSkillViewController {
     public static id = 'generate'
-    private storyElementsCardVc: CardViewController
+
+    protected elementsCardVc: StoryElementsCardViewController
+    protected controlsCardVc: CardViewController
+
     private currentChallengeCardVc: CardViewController
     private familyMembersCardVc: CardViewController
-    protected controlsCardVc: CardViewController
     private router?: Router
 
     public constructor(options: ViewControllerOptions) {
         super(options)
 
-        this.storyElementsCardVc = this.Controller('card', {
-            id: 'storyElements',
-            header: {
-                title: 'Story Elements',
-            },
-        })
+        this.elementsCardVc = this.ElementsCardVc()
+        this.currentChallengeCardVc = this.CurrentChallengeCardVc()
+        this.familyMembersCardVc = this.FamilyMembersCardVc()
+        this.controlsCardVc = this.ControlsCardVc()
+    }
 
-        this.currentChallengeCardVc = this.Controller('card', {
-            id: 'currentChallenge',
-            header: {
-                title: 'Current Challenge',
-            },
-        })
-
-        this.familyMembersCardVc = this.Controller('card', {
-            id: 'familyMembers',
-            header: {
-                title: 'Family Members',
-            },
-        })
-
-        this.controlsCardVc = this.Controller('card', {
+    private ControlsCardVc(): CardViewController {
+        return this.Controller('card', {
             id: 'controls',
             body: {
                 sections: [
@@ -63,6 +52,28 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
         })
     }
 
+    private FamilyMembersCardVc(): CardViewController {
+        return this.Controller('card', {
+            id: 'familyMembers',
+            header: {
+                title: 'Family Members',
+            },
+        })
+    }
+
+    private CurrentChallengeCardVc(): CardViewController {
+        return this.Controller('card', {
+            id: 'currentChallenge',
+            header: {
+                title: 'Current Challenge',
+            },
+        })
+    }
+
+    private ElementsCardVc() {
+        return this.Controller('eightbitstories.story-elements-card', {})
+    }
+
     private async handleClickBack() {
         await this.router?.redirect('eightbitstories.root')
     }
@@ -75,11 +86,11 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
     public render(): SkillView {
         const skillView = buildSkillViewLayout('big-left', {
             leftCards: [
-                this.storyElementsCardVc.render(),
-                this.currentChallengeCardVc.render(),
+                this.elementsCardVc.render(),
+                this.familyMembersCardVc.render(),
             ],
             rightCards: [
-                this.familyMembersCardVc.render(),
+                this.currentChallengeCardVc.render(),
                 this.controlsCardVc.render(),
             ],
         })
