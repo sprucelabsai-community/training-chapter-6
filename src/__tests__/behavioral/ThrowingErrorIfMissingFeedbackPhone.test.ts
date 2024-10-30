@@ -6,7 +6,7 @@ import AbstractEightBitTest from '../support/AbstractEightBitTest'
 export default class ThrowingErrorIfMissingFeedbackPhoneTest extends AbstractEightBitTest {
     @test()
     protected static async canCreateThrowingErrorIfMissingFeedbackPhone() {
-        process.env.FEEDBACK_PHONE = ''
+        delete process.env.FEEDBACK_PHONE
         const err = await assert.doesThrowAsync(() => this.bootSkill())
         errorAssert.assertError(err, 'MISSING_PARAMETERS', {
             parameters: ['env.FEEDBACK_PHONE'],
