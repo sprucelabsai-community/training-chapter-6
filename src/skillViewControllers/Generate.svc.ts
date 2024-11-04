@@ -8,6 +8,7 @@ import {
     buildSkillViewLayout,
     buildForm,
     FormViewController,
+    Button,
 } from '@sprucelabs/heartwood-view-controllers'
 import { buildSchema } from '@sprucelabs/schema'
 import { SelectChoice } from '@sprucelabs/spruce-core-schemas'
@@ -21,18 +22,37 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
     protected controlsCardVc: CardViewController
     protected familyMembersCardVc: CardViewController
     protected familyMembersFormVc: FormViewController<FamilyMembersFormSchema>
+    protected currentChallengeCardVc: CardViewController
+    protected currentChallengeFormVc: FormViewController<CurrentChallengeFormSchema>
 
-    private currentChallengeCardVc: CardViewController
     private router?: Router
 
     public constructor(options: ViewControllerOptions) {
         super(options)
 
+        this.currentChallengeFormVc = this.CurrentChallengeFormVc()
         this.familyMembersFormVc = this.FamilyMemberFormVc()
         this.elementsCardVc = this.ElementsCardVc()
         this.currentChallengeCardVc = this.CurrentChallengeCardVc()
         this.familyMembersCardVc = this.FamilyMembersCardVc()
         this.controlsCardVc = this.ControlsCardVc()
+    }
+
+    private CurrentChallengeFormVc() {
+        return this.Controller(
+            'form',
+            buildForm({
+                schema: currentChallengFormSchema,
+                shouldShowSubmitControls: false,
+                sections: [
+                    {
+                        fields: [
+                            { name: 'currentChallenge', renderAs: 'textarea' },
+                        ],
+                    },
+                ],
+            })
+        )
     }
 
     private FamilyMemberFormVc() {
@@ -41,6 +61,7 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
             buildForm({
                 schema: familyMembersFormSchema,
                 shouldShowSubmitControls: false,
+                onChange: this.handleChangeForms.bind(this),
                 sections: [
                     {
                         fields: [{ name: 'familyMembers', renderAs: 'tags' }],
@@ -50,28 +71,39 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
         )
     }
 
+    private handleChangeForms() {
+        this.updateControls()
+    }
+
     private ControlsCardVc(): CardViewController {
         return this.Controller('card', {
             id: 'controls',
             body: {
                 sections: [
                     {
-                        buttons: [
-                            {
-                                id: 'back',
-                                label: 'Back',
-                                onClick: this.handleClickBack.bind(this),
-                            },
-                            {
-                                id: 'write',
-                                type: 'primary',
-                                label: 'Write Story',
-                            },
-                        ],
+                        buttons: this.renderControlsButtons(),
                     },
                 ],
             },
         })
+    }
+
+    private renderControlsButtons(): Button[] {
+        const isValid =
+            this.familyMembersFormVc.isValid() && this.elementsCardVc.isValid()
+        return [
+            {
+                id: 'back',
+                label: 'Back',
+                onClick: this.handleClickBack.bind(this),
+            },
+            {
+                id: 'write',
+                type: 'primary',
+                label: 'Write Story',
+                isEnabled: isValid,
+            },
+        ]
     }
 
     private FamilyMembersCardVc(): CardViewController {
@@ -97,11 +129,20 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
             header: {
                 title: 'Current Challenge',
             },
+            body: {
+                sections: [
+                    {
+                        form: this.currentChallengeFormVc.render(),
+                    },
+                ],
+            },
         })
     }
 
     private ElementsCardVc() {
-        return this.Controller('eightbitstories.story-elements-card', {})
+        return this.Controller('eightbitstories.story-elements-card', {
+            onChange: () => this.updateControls(),
+        })
     }
 
     private async handleClickBack() {
@@ -129,6 +170,12 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
 
         this.updateFamilyMemberField(familyMembers)
         this.familyMembersCardVc.setIsBusy(false)
+    }
+
+    private updateControls() {
+        this.controlsCardVc.updateSection(0, {
+            buttons: this.renderControlsButtons(),
+        })
     }
 
     private updateFamilyMemberField(familyMembers: PublicFamilyMember[]) {
@@ -180,3 +227,15 @@ const familyMembersFormSchema = buildSchema({
 })
 
 type FamilyMembersFormSchema = typeof familyMembersFormSchema
+
+const currentChallengFormSchema = buildSchema({
+    id: 'currentChallengeForm',
+    fields: {
+        currentChallenge: {
+            type: 'text',
+            isRequired: true,
+        },
+    },
+})
+
+type CurrentChallengeFormSchema = typeof currentChallengFormSchema

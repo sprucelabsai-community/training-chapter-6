@@ -12,9 +12,16 @@ export default class StoryElementsCardViewController extends AbstractViewControl
     public static id = 'story-elements-card'
     protected formVc: FormViewController<StoryElementsFormSchema>
     protected cardVc: CardViewController
+    private onChangeHandler?: OnChangeHandler
 
-    public constructor(options: ViewControllerOptions) {
+    public constructor(
+        options: ViewControllerOptions & StoryElementsCardOptions
+    ) {
         super(options)
+
+        const { onChange } = options
+
+        this.onChangeHandler = onChange
 
         this.formVc = this.FormVc()
         this.cardVc = this.CardVc()
@@ -26,6 +33,7 @@ export default class StoryElementsCardViewController extends AbstractViewControl
             buildForm({
                 schema: elementsFormSchema,
                 shouldShowSubmitControls: false,
+                onChange: this.onChangeHandler,
                 sections: [
                     {
                         fields: [{ name: 'elements', renderAs: 'tags' }],
@@ -49,6 +57,10 @@ export default class StoryElementsCardViewController extends AbstractViewControl
                 ],
             },
         })
+    }
+
+    public isValid() {
+        return this.formVc.isValid()
     }
 
     public render() {
@@ -86,3 +98,9 @@ const elementsFormSchema = buildSchema({
 })
 
 type StoryElementsFormSchema = typeof elementsFormSchema
+
+type OnChangeHandler = () => void | Promise<void>
+
+interface StoryElementsCardOptions {
+    onChange?: OnChangeHandler
+}

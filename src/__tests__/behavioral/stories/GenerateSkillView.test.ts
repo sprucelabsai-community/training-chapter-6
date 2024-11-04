@@ -175,6 +175,69 @@ export default class GenerateSkillViewTest extends AbstractEightBitTest {
         )
     }
 
+    @test()
+    protected static async currentChallengesCardRendersForm() {
+        formAssert.cardRendersForm(this.vc.getChallengesCardVc())
+    }
+
+    @test()
+    protected static async currentChallengeRendersAsTextArea() {
+        formAssert.formFieldRendersAs(
+            this.currentChallengeFormVc,
+            'currentChallenge',
+            'textarea'
+        )
+    }
+
+    @test()
+    protected static async doesNotRenderSubmitControls() {
+        assert.isFalse(
+            this.currentChallengeFormVc.getShouldRenderSubmitControls(),
+            'Do not render submit controls on your challenge form!'
+        )
+    }
+
+    @test()
+    protected static async writeStoryButtonDisabledToStart() {
+        this.assertWriteButtonDisabled()
+    }
+
+    @test()
+    protected static async writeStoryEnablesWhenSelectingOneElementAndFamilyMember() {
+        await this.load()
+
+        this.assertWriteButtonDisabled()
+
+        await this.setStoryElements(['wizards'])
+        await this.setFamilyMembers([this.fakedFamilyMembers[0].id])
+
+        this.assertWriteButtonEnabled()
+
+        await this.setStoryElements([])
+
+        this.assertWriteButtonDisabled()
+    }
+
+    private static assertWriteButtonEnabled() {
+        buttonAssert.buttonIsEnabled(this.controlsCardVc, 'write')
+    }
+
+    private static async setFamilyMembers(value: string[]) {
+        await this.familyFormVc.setValue('familyMembers', value)
+    }
+
+    private static async setStoryElements(value: string[]) {
+        await this.elementsFormVc.setValue('elements', value)
+    }
+
+    private static assertWriteButtonDisabled() {
+        buttonAssert.buttonIsDisabled(this.controlsCardVc, 'write')
+    }
+
+    private static get currentChallengeFormVc() {
+        return this.vc.getChallengeFormVc()
+    }
+
     private static get familyCardVc() {
         return this.vc.getFamilyCardVc()
     }
@@ -208,12 +271,22 @@ export default class GenerateSkillViewTest extends AbstractEightBitTest {
 }
 
 class SpyGenerateSkillView extends GenerateSkillViewController {
+    public getChallengeFormVc() {
+        return this.currentChallengeFormVc
+    }
+
+    public getChallengesCardVc() {
+        return this.currentChallengeCardVc
+    }
+
     public getFamilyFormVc() {
         return this.familyMembersFormVc
     }
+
     public getFamilyCardVc() {
         return this.familyMembersCardVc
     }
+
     public getElementsFormVc() {
         return this.getElementsCardVc().getFormVc()
     }
