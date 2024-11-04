@@ -6,7 +6,12 @@ import {
     SkillViewControllerLoadOptions,
     Router,
     buildSkillViewLayout,
+    buildForm,
+    FormViewController,
 } from '@sprucelabs/heartwood-view-controllers'
+import { buildSchema } from '@sprucelabs/schema'
+import { SelectChoice } from '@sprucelabs/spruce-core-schemas'
+import { PublicFamilyMember } from '../eightbitstories.types'
 import StoryElementsCardViewController from '../viewControllers/StoryElementsCard.vc'
 
 export default class GenerateSkillViewController extends AbstractSkillViewController {
@@ -14,18 +19,35 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
 
     protected elementsCardVc: StoryElementsCardViewController
     protected controlsCardVc: CardViewController
+    protected familyMembersCardVc: CardViewController
+    protected familyMembersFormVc: FormViewController<FamilyMembersFormSchema>
 
     private currentChallengeCardVc: CardViewController
-    private familyMembersCardVc: CardViewController
     private router?: Router
 
     public constructor(options: ViewControllerOptions) {
         super(options)
 
+        this.familyMembersFormVc = this.FamilyMemberFormVc()
         this.elementsCardVc = this.ElementsCardVc()
         this.currentChallengeCardVc = this.CurrentChallengeCardVc()
         this.familyMembersCardVc = this.FamilyMembersCardVc()
         this.controlsCardVc = this.ControlsCardVc()
+    }
+
+    private FamilyMemberFormVc() {
+        return this.Controller(
+            'form',
+            buildForm({
+                schema: familyMembersFormSchema,
+                shouldShowSubmitControls: false,
+                sections: [
+                    {
+                        fields: [{ name: 'familyMembers', renderAs: 'tags' }],
+                    },
+                ],
+            })
+        )
     }
 
     private ControlsCardVc(): CardViewController {
@@ -58,6 +80,14 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
             header: {
                 title: 'Family Members',
             },
+            body: {
+                isBusy: true,
+                sections: [
+                    {
+                        form: this.familyMembersFormVc.render(),
+                    },
+                ],
+            },
         })
     }
 
@@ -81,6 +111,42 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
     public async load(options: SkillViewControllerLoadOptions) {
         const { router } = options
         this.router = router
+
+        const client = await this.connectToApi()
+        const [{ familyMembers }] = await client.emitAndFlattenResponses(
+            'eightbitstories.list-family-members::v2024_09_19'
+        )
+
+        if (familyMembers.length === 0) {
+            await this.alert({
+                message:
+                    'You gotta add at least one family member before writing your bedtime story!',
+            })
+
+            await this.router.redirect('eightbitstories.members')
+            return
+        }
+
+        this.updateFamilyMemberField(familyMembers)
+        this.familyMembersCardVc.setIsBusy(false)
+    }
+
+    private updateFamilyMemberField(familyMembers: PublicFamilyMember[]) {
+        const choices: SelectChoice[] = familyMembers.map((f) => ({
+            value: f.id,
+            label: f.name,
+        }))
+
+        this.familyMembersFormVc.updateField('familyMembers', {
+            fieldDefinition: {
+                type: 'select',
+                isArray: true,
+                isRequired: true,
+                options: {
+                    choices,
+                },
+            },
+        })
     }
 
     public render(): SkillView {
@@ -98,3 +164,19 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
         return skillView
     }
 }
+
+const familyMembersFormSchema = buildSchema({
+    id: 'familyMembersForm',
+    fields: {
+        familyMembers: {
+            type: 'select',
+            isRequired: true,
+            isArray: true,
+            options: {
+                choices: [] as SelectChoice[],
+            },
+        },
+    },
+})
+
+type FamilyMembersFormSchema = typeof familyMembersFormSchema
