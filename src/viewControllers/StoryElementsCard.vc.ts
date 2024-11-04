@@ -59,6 +59,10 @@ export default class StoryElementsCardViewController extends AbstractViewControl
         })
     }
 
+    public getSelectedElements() {
+        return this.formVc.getValue('elements') ?? []
+    }
+
     public isValid() {
         return this.formVc.isValid()
     }

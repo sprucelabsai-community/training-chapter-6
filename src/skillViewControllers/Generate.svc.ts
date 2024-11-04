@@ -102,8 +102,30 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
                 type: 'primary',
                 label: 'Write Story',
                 isEnabled: isValid,
+                onClick: this.handleClickWrite.bind(this),
             },
         ]
+    }
+
+    private async handleClickWrite() {
+        this.controlsCardVc.setIsBusy(true)
+
+        const familyMembers = this.familyMembersFormVc.getValue('familyMembers')
+        const storyElements = this.elementsCardVc.getSelectedElements()
+        const currentChallenge =
+            this.currentChallengeFormVc.getValue('currentChallenge')
+
+        const client = await this.connectToApi()
+        await client.emitAndFlattenResponses(
+            'eightbitstories.generate-story::v2024_09_19',
+            {
+                payload: {
+                    storyElements,
+                    familyMembers: familyMembers!,
+                    currentChallenge,
+                },
+            }
+        )
     }
 
     private FamilyMembersCardVc(): CardViewController {

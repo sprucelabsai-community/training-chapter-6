@@ -14,7 +14,6 @@ const eightbitstoriesPermissions = buildPermissionContract({
                     default: true,
                 },
             },
-            requireAllStatuses: false,
         },
         {
             id: 'can-manage-family',
@@ -26,7 +25,15 @@ const eightbitstoriesPermissions = buildPermissionContract({
                     default: true,
                 },
             },
-            requireAllStatuses: false,
+        },
+        {
+            id: 'can-generate-story',
+            name: 'Can generate bedtime story',
+            defaults: {
+                loggedIn: {
+                    default: true,
+                },
+            },
         },
     ],
 })

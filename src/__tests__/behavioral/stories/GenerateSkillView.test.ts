@@ -6,11 +6,12 @@ import {
 } from '@sprucelabs/heartwood-view-controllers'
 import { selectAssert } from '@sprucelabs/schema'
 import { fake } from '@sprucelabs/spruce-test-fixtures'
-import { assert, test } from '@sprucelabs/test-utils'
+import { assert, generateId, test } from '@sprucelabs/test-utils'
 import { PublicFamilyMember } from '../../../eightbitstories.types'
 import GenerateSkillViewController from '../../../skillViewControllers/Generate.svc'
 import StoryElementsCardViewController from '../../../viewControllers/StoryElementsCard.vc'
 import AbstractEightBitTest from '../../support/AbstractEightBitTest'
+import { GenerateStoryTargetAndPayload } from '../../support/EventFaker'
 
 @fake.login()
 export default class GenerateSkillViewTest extends AbstractEightBitTest {
@@ -38,9 +39,12 @@ export default class GenerateSkillViewTest extends AbstractEightBitTest {
         this.fakedFamilyMembers = [
             this.eventFaker.generatePublicFamilyMemberValues(),
         ]
+
         await this.eventFaker.fakeListFamilyMembers(
             () => this.fakedFamilyMembers
         )
+
+        await this.eventFaker.fakeGenerateStory()
     }
 
     @test()
@@ -208,25 +212,79 @@ export default class GenerateSkillViewTest extends AbstractEightBitTest {
 
         this.assertWriteButtonDisabled()
 
-        await this.setStoryElements(['wizards'])
-        await this.setFamilyMembers([this.fakedFamilyMembers[0].id])
+        await this.selectStoryElements(['wizards'])
+        await this.selectFamilyMembers([this.fakedFamilyMembers[0].id])
 
         this.assertWriteButtonEnabled()
 
-        await this.setStoryElements([])
+        await this.selectStoryElements([])
 
         this.assertWriteButtonDisabled()
+    }
+
+    @test('clicking write story emits generate event 1', ['wizards'])
+    @test('clicking write story emits generate event 2', [
+        'sports',
+        'dinosaurs',
+    ])
+    protected static async clickingWriteEmitsGenerateEvent(
+        storyElements: string[]
+    ) {
+        await this.load()
+
+        const currentChallenge = generateId()
+        await this.setCurrentChallenge(currentChallenge)
+        await this.selectStoryElements(storyElements)
+        await this.selectFirstFamilyMember()
+
+        let passedPayload: GenerateStoryTargetAndPayload['payload'] | undefined
+
+        await this.eventFaker.fakeGenerateStory(({ payload }) => {
+            passedPayload = payload
+        })
+
+        await this.clickWrite()
+
+        assert.isEqualDeep(passedPayload, {
+            familyMembers: [this.fakedFamilyMembers[0].id],
+            storyElements,
+            currentChallenge,
+        })
+    }
+
+    @test()
+    protected static async clickingGenerateMakesControlsBusy() {
+        await this.load()
+        await this.selectStoryElements(['elves'])
+        await this.selectFirstFamilyMember()
+        await this.clickWrite()
+        vcAssert.assertCardIsBusy(this.controlsCardVc)
+    }
+
+    private static async clickWrite() {
+        await interactor.clickButton(this.controlsCardVc, 'write')
+    }
+
+    private static async selectFirstFamilyMember() {
+        await this.selectFamilyMembers([this.fakedFamilyMembers[0].id])
+    }
+
+    private static async setCurrentChallenge(currentChallenge: string) {
+        await this.currentChallengeFormVc.setValue(
+            'currentChallenge',
+            currentChallenge
+        )
     }
 
     private static assertWriteButtonEnabled() {
         buttonAssert.buttonIsEnabled(this.controlsCardVc, 'write')
     }
 
-    private static async setFamilyMembers(value: string[]) {
+    private static async selectFamilyMembers(value: string[]) {
         await this.familyFormVc.setValue('familyMembers', value)
     }
 
-    private static async setStoryElements(value: string[]) {
+    private static async selectStoryElements(value: string[]) {
         await this.elementsFormVc.setValue('elements', value)
     }
 
