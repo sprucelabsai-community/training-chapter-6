@@ -2,13 +2,6 @@ import { EventFeatureListener } from '@sprucelabs/spruce-event-utils'
 
 const listeners: EventFeatureListener[] = [
     {
-        eventName: 'generate-story',
-        eventNamespace: 'eightbitstories',
-        version: 'v2024_09_19',
-        callback: require('../../listeners/eightbitstories/generate-story.v2024_09_19.listener').default,
-        isGlobal: require('../../listeners/eightbitstories/generate-story.v2024_09_19.listener').isGlobal,
-    },
-    {
         eventName: 'did-boot',
         eventNamespace: 'skill',
         version: 'v2024_09_19',
@@ -70,6 +63,13 @@ const listeners: EventFeatureListener[] = [
         version: 'v2024_09_19',
         callback: require('../../members/listeners/eightbitstories/update-family-member.v2024_09_19.listener').default,
         isGlobal: require('../../members/listeners/eightbitstories/update-family-member.v2024_09_19.listener').isGlobal,
+    },
+    {
+        eventName: 'generate-story',
+        eventNamespace: 'eightbitstories',
+        version: 'v2024_09_19',
+        callback: require('../../stories/listeners/eightbitstories/generate-story.v2024_09_19.listener').default,
+        isGlobal: require('../../stories/listeners/eightbitstories/generate-story.v2024_09_19.listener').isGlobal,
     },
 ]
 

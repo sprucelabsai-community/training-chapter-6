@@ -4,7 +4,7 @@ import {
     SpruceEventResponse,
 } from '@sprucelabs/spruce-event-utils'
 import { SpruceSchemas } from '#spruce/schemas/schemas.types'
-import StoryGeneratorImpl from '../../StoryGenerator'
+import StoryGeneratorImpl from '../../../StoryGenerator'
 
 export default async (
     event: SpruceEvent<SkillEventContract, EmitPayload>

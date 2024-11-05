@@ -13,7 +13,7 @@ import {
 import { buildSchema } from '@sprucelabs/schema'
 import { SelectChoice, SpruceSchemas } from '@sprucelabs/spruce-core-schemas'
 import { PublicFamilyMember } from '../eightbitstories.types'
-import StoryElementsCardViewController from '../viewControllers/StoryElementsCard.vc'
+import StoryElementsCardViewController from './StoryElementsCard.vc'
 
 export default class GenerateSkillViewController extends AbstractSkillViewController {
     public static id = 'generate'
