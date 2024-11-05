@@ -8,8 +8,8 @@ import {
 } from '@sprucelabs/heartwood-view-controllers'
 import { SelectChoice, buildSchema } from '@sprucelabs/schema'
 
-export default class StoryElementsCardViewController extends AbstractViewController<Card> {
-    public static id = 'story-elements-card'
+export default class StoryElementSelectCardViewController extends AbstractViewController<Card> {
+    public static id = 'story-element-select-card'
     protected formVc: FormViewController<StoryElementsFormSchema>
     protected cardVc: CardViewController
     private onChangeHandler?: OnChangeHandler

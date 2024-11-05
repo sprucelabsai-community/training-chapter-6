@@ -6,76 +6,34 @@ import {
     SkillViewControllerLoadOptions,
     Router,
     buildSkillViewLayout,
-    buildForm,
-    FormViewController,
     Button,
 } from '@sprucelabs/heartwood-view-controllers'
-import { buildSchema } from '@sprucelabs/schema'
-import { SelectChoice, SpruceSchemas } from '@sprucelabs/spruce-core-schemas'
+import { SpruceSchemas } from '@sprucelabs/spruce-core-schemas'
 import { PublicFamilyMember } from '../eightbitstories.types'
-import StoryElementsCardViewController from './StoryElementsCard.vc'
+import CurrentChallengeCardViewController from './CurrentChallengeCard.vc'
+import FamilyMemberSelectCardViewController from './FamilyMemberSelectCard.vc'
+import StoryElementSelectCardViewController from './StoryElementSelectCard.vc'
 
 export default class GenerateSkillViewController extends AbstractSkillViewController {
     public static id = 'generate'
 
-    protected elementsCardVc: StoryElementsCardViewController
+    protected elementsCardVc: StoryElementSelectCardViewController
     protected controlsCardVc: CardViewController
-    protected familyMembersCardVc: CardViewController
-    protected familyMembersFormVc: FormViewController<FamilyMembersFormSchema>
-    protected currentChallengeCardVc: CardViewController
-    protected currentChallengeFormVc: FormViewController<CurrentChallengeFormSchema>
+    protected familyMembersCardVc: FamilyMemberSelectCardViewController
+    protected currentChallengeCardVc: CurrentChallengeCardViewController
 
     private router?: Router
 
     public constructor(options: ViewControllerOptions) {
         super(options)
 
-        this.currentChallengeFormVc = this.CurrentChallengeFormVc()
-        this.familyMembersFormVc = this.FamilyMemberFormVc()
         this.elementsCardVc = this.ElementsCardVc()
         this.currentChallengeCardVc = this.CurrentChallengeCardVc()
-        this.familyMembersCardVc = this.FamilyMembersCardVc()
+        this.familyMembersCardVc = this.FamilyMemberSelectCardVc()
         this.controlsCardVc = this.ControlsCardVc()
 
         this.handleDidFailToGenerate = this.handleDidFailToGenerate.bind(this)
         this.handleDidGenerate = this.handleDidGenerate.bind(this)
-    }
-
-    private CurrentChallengeFormVc() {
-        return this.Controller(
-            'form',
-            buildForm({
-                schema: currentChallengFormSchema,
-                shouldShowSubmitControls: false,
-                sections: [
-                    {
-                        fields: [
-                            { name: 'currentChallenge', renderAs: 'textarea' },
-                        ],
-                    },
-                ],
-            })
-        )
-    }
-
-    private FamilyMemberFormVc() {
-        return this.Controller(
-            'form',
-            buildForm({
-                schema: familyMembersFormSchema,
-                shouldShowSubmitControls: false,
-                onChange: this.handleChangeForms.bind(this),
-                sections: [
-                    {
-                        fields: [{ name: 'familyMembers', renderAs: 'tags' }],
-                    },
-                ],
-            })
-        )
-    }
-
-    private handleChangeForms() {
-        this.updateControls()
     }
 
     private ControlsCardVc(): CardViewController {
@@ -92,8 +50,6 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
     }
 
     private renderControlsButtons(): Button[] {
-        const isValid =
-            this.familyMembersFormVc.isValid() && this.elementsCardVc.isValid()
         return [
             {
                 id: 'back',
@@ -104,19 +60,26 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
                 id: 'write',
                 type: 'primary',
                 label: 'Write Story',
-                isEnabled: isValid,
+                isEnabled: this.isValid(),
                 onClick: this.handleClickWrite.bind(this),
             },
         ]
     }
 
+    private isValid() {
+        return (
+            this.familyMembersCardVc.isValid() && this.elementsCardVc.isValid()
+        )
+    }
+
     private async handleClickWrite() {
         this.controlsCardVc.setIsBusy(true)
 
-        const familyMembers = this.familyMembersFormVc.getValue('familyMembers')
+        const familyMembers =
+            this.familyMembersCardVc.getSelectedFamilyMembers()
         const storyElements = this.elementsCardVc.getSelectedElements()
         const currentChallenge =
-            this.currentChallengeFormVc.getValue('currentChallenge')
+            this.currentChallengeCardVc.getCurrentChallenge()
 
         const client = await this.connectToApi()
         await client.emitAndFlattenResponses(
@@ -131,41 +94,18 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
         )
     }
 
-    private FamilyMembersCardVc(): CardViewController {
-        return this.Controller('card', {
-            id: 'familyMembers',
-            header: {
-                title: 'Family Members',
-            },
-            body: {
-                isBusy: true,
-                sections: [
-                    {
-                        form: this.familyMembersFormVc.render(),
-                    },
-                ],
-            },
+    private FamilyMemberSelectCardVc() {
+        return this.Controller('eightbitstories.family-member-select-card', {
+            onChange: () => this.updateControls(),
         })
     }
 
-    private CurrentChallengeCardVc(): CardViewController {
-        return this.Controller('card', {
-            id: 'currentChallenge',
-            header: {
-                title: 'Current Challenge',
-            },
-            body: {
-                sections: [
-                    {
-                        form: this.currentChallengeFormVc.render(),
-                    },
-                ],
-            },
-        })
+    private CurrentChallengeCardVc() {
+        return this.Controller('eightbitstories.current-challenge-card', {})
     }
 
     private ElementsCardVc() {
-        return this.Controller('eightbitstories.story-elements-card', {
+        return this.Controller('eightbitstories.story-element-select-card', {
             onChange: () => this.updateControls(),
         })
     }
@@ -194,7 +134,7 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
             return
         }
 
-        this.updateFamilyMemberField(familyMembers)
+        this.setFamilyMembers(familyMembers)
         this.familyMembersCardVc.setIsBusy(false)
 
         await client.on(
@@ -243,22 +183,8 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
         })
     }
 
-    private updateFamilyMemberField(familyMembers: PublicFamilyMember[]) {
-        const choices: SelectChoice[] = familyMembers.map((f) => ({
-            value: f.id,
-            label: f.name,
-        }))
-
-        this.familyMembersFormVc.updateField('familyMembers', {
-            fieldDefinition: {
-                type: 'select',
-                isArray: true,
-                isRequired: true,
-                options: {
-                    choices,
-                },
-            },
-        })
+    private setFamilyMembers(familyMembers: PublicFamilyMember[]) {
+        this.familyMembersCardVc.setFamilyMembers(familyMembers)
     }
 
     public render(): SkillView {
@@ -276,31 +202,3 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
         return skillView
     }
 }
-
-const familyMembersFormSchema = buildSchema({
-    id: 'familyMembersForm',
-    fields: {
-        familyMembers: {
-            type: 'select',
-            isRequired: true,
-            isArray: true,
-            options: {
-                choices: [] as SelectChoice[],
-            },
-        },
-    },
-})
-
-type FamilyMembersFormSchema = typeof familyMembersFormSchema
-
-const currentChallengFormSchema = buildSchema({
-    id: 'currentChallengeForm',
-    fields: {
-        currentChallenge: {
-            type: 'text',
-            isRequired: true,
-        },
-    },
-})
-
-type CurrentChallengeFormSchema = typeof currentChallengFormSchema

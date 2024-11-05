@@ -8,8 +8,10 @@ import { selectAssert } from '@sprucelabs/schema'
 import { fake } from '@sprucelabs/spruce-test-fixtures'
 import { assert, generateId, test } from '@sprucelabs/test-utils'
 import { PublicFamilyMember } from '../../../eightbitstories.types'
+import CurrentChallengeCardViewController from '../../../stories/CurrentChallengeCard.vc'
+import FamilyMemberSelectCardViewController from '../../../stories/FamilyMemberSelectCard.vc'
 import GenerateSkillViewController from '../../../stories/Generate.svc'
-import StoryElementsCardViewController from '../../../stories/StoryElementsCard.vc'
+import StoryElementSelectCardViewController from '../../../stories/StoryElementSelectCard.vc'
 import AbstractEightBitTest from '../../support/AbstractEightBitTest'
 import { GenerateStoryTargetAndPayload } from '../../support/EventFaker'
 
@@ -22,8 +24,18 @@ export default class GenerateSkillViewTest extends AbstractEightBitTest {
         await super.beforeEach()
 
         this.views.setController(
-            'eightbitstories.story-elements-card',
+            'eightbitstories.story-element-select-card',
             SpyStoryElementsCard
+        )
+
+        this.views.setController(
+            'eightbitstories.family-member-select-card',
+            SpyFamilyMemberSelectCard
+        )
+
+        this.views.setController(
+            'eightbitstories.current-challenge-card',
+            SpyCurrentChallengeCard
         )
 
         this.views.setController(
@@ -412,19 +424,19 @@ export default class GenerateSkillViewTest extends AbstractEightBitTest {
 
 class SpyGenerateSkillView extends GenerateSkillViewController {
     public getChallengeFormVc() {
-        return this.currentChallengeFormVc
+        return this.getChallengesCardVc().getFormVc()
     }
 
     public getChallengesCardVc() {
-        return this.currentChallengeCardVc
+        return this.currentChallengeCardVc as SpyCurrentChallengeCard
     }
 
     public getFamilyFormVc() {
-        return this.familyMembersFormVc
+        return this.getFamilyCardVc().getFormVc()
     }
 
     public getFamilyCardVc() {
-        return this.familyMembersCardVc
+        return this.familyMembersCardVc as SpyFamilyMemberSelectCard
     }
 
     public getElementsFormVc() {
@@ -439,12 +451,24 @@ class SpyGenerateSkillView extends GenerateSkillViewController {
     }
 }
 
-class SpyStoryElementsCard extends StoryElementsCardViewController {
+class SpyStoryElementsCard extends StoryElementSelectCardViewController {
     public getFormVc() {
         return this.formVc
     }
 
     public getCardVc() {
         return this.cardVc
+    }
+}
+
+class SpyFamilyMemberSelectCard extends FamilyMemberSelectCardViewController {
+    public getFormVc() {
+        return this.formVc
+    }
+}
+
+class SpyCurrentChallengeCard extends CurrentChallengeCardViewController {
+    public getFormVc() {
+        return this.formVc
     }
 }

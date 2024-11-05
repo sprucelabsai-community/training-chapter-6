@@ -1,23 +1,27 @@
 import FamilySkillViewController from '../../family/Family.svc'
 import MembersSkillViewController from '../../members/Members.svc'
+import RootSkillViewController from '../../skillViewControllers/Root.svc'
 import GenerateSkillViewController from '../../stories/Generate.svc'
 import ReadSkillViewController from '../../stories/Read.svc'
-import RootSkillViewController from '../../skillViewControllers/Root.svc'
 import FeedbackCardViewController from '../../feedback/FeedbackCard.vc'
 import FamilyMemberFormCardViewController from '../../members/FamilyMemberFormCard.vc'
-import StoryElementsCardViewController from '../../stories/StoryElementsCard.vc'
+import CurrentChallengeCardViewController from '../../stories/CurrentChallengeCard.vc'
+import FamilyMemberSelectCardViewController from '../../stories/FamilyMemberSelectCard.vc'
+import StoryElementSelectCardViewController from '../../stories/StoryElementSelectCard.vc'
 
 import '@sprucelabs/heartwood-view-controllers'
 
 const vcs = {
     FamilySkillViewController,
     MembersSkillViewController,
+    RootSkillViewController,
     GenerateSkillViewController,
     ReadSkillViewController,
-    RootSkillViewController,
     FeedbackCardViewController,
     FamilyMemberFormCardViewController,
-    StoryElementsCardViewController,
+    CurrentChallengeCardViewController,
+    FamilyMemberSelectCardViewController,
+    StoryElementSelectCardViewController,
 }
 
 export const pluginsByName = {
@@ -29,34 +33,38 @@ declare module '@sprucelabs/heartwood-view-controllers/build/types/heartwood.typ
 	interface SkillViewControllerMap {
 		'eightbitstories.family': FamilySkillViewController
 		'eightbitstories.members': MembersSkillViewController
+		'eightbitstories.root': RootSkillViewController
 		'eightbitstories.generate': GenerateSkillViewController
 		'eightbitstories.read': ReadSkillViewController
-		'eightbitstories.root': RootSkillViewController
 	}
 
 	interface SkillViewControllerArgsMap {
 		'eightbitstories.family': LoadOptions<Parameters<FamilySkillViewController['load']>>
 		'eightbitstories.members': LoadOptions<Parameters<MembersSkillViewController['load']>>
+		'eightbitstories.root': LoadOptions<Parameters<RootSkillViewController['load']>>
 		'eightbitstories.generate': LoadOptions<Parameters<GenerateSkillViewController['load']>>
 		'eightbitstories.read': LoadOptions<Parameters<ReadSkillViewController['load']>>
-		'eightbitstories.root': LoadOptions<Parameters<RootSkillViewController['load']>>
 	}
 
 	interface ViewControllerMap {
 		'eightbitstories.feedback-card': FeedbackCardViewController
 		'eightbitstories.family-member-form-card': FamilyMemberFormCardViewController
-		'eightbitstories.story-elements-card': StoryElementsCardViewController
+		'eightbitstories.current-challenge-card': CurrentChallengeCardViewController
+		'eightbitstories.family-member-select-card': FamilyMemberSelectCardViewController
+		'eightbitstories.story-element-select-card': StoryElementSelectCardViewController
 		'eightbitstories.family': FamilySkillViewController
 		'eightbitstories.members': MembersSkillViewController
+		'eightbitstories.root': RootSkillViewController
 		'eightbitstories.generate': GenerateSkillViewController
 		'eightbitstories.read': ReadSkillViewController
-		'eightbitstories.root': RootSkillViewController
 	}
 
     interface ViewControllerOptionsMap {
 		'eightbitstories.feedback-card': ConstructorParameters<typeof FeedbackCardViewController>[0]
 		'eightbitstories.family-member-form-card': ConstructorParameters<typeof FamilyMemberFormCardViewController>[0]
-		'eightbitstories.story-elements-card': ConstructorParameters<typeof StoryElementsCardViewController>[0]
+		'eightbitstories.current-challenge-card': ConstructorParameters<typeof CurrentChallengeCardViewController>[0]
+		'eightbitstories.family-member-select-card': ConstructorParameters<typeof FamilyMemberSelectCardViewController>[0]
+		'eightbitstories.story-element-select-card': ConstructorParameters<typeof StoryElementSelectCardViewController>[0]
 	}
 
 	interface ViewControllerPlugins {
