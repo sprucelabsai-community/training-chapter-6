@@ -7,6 +7,26 @@ import { generateId } from '@sprucelabs/test-utils'
 import { Family, PublicFamilyMember } from '../../eightbitstories.types'
 
 export default class EventFaker {
+    public async fakeDidFailToGenerateStory(
+        cb?: (targetAndPayload: DidFailTargetAndPayload) => void
+    ) {
+        await eventFaker.on(
+            'eightbitstories.did-fail-to-generate-story::v2024_09_19',
+            (targetAndPayload) => {
+                cb?.(targetAndPayload)
+            }
+        )
+    }
+    public async fakeDidGenerateStory(
+        cb?: (targetAndPayload: DidGenerateTargetAndPayload) => void
+    ) {
+        await eventFaker.on(
+            'eightbitstories.did-generate-story::v2024_09_19',
+            (targetAndPayload) => {
+                cb?.(targetAndPayload)
+            }
+        )
+    }
     public async fakeGenerateStory(
         cb?: (targetAndPayload: GenerateStoryTargetAndPayload) => void
     ) {
@@ -195,3 +215,9 @@ export type UpdateFamilyMemberTargetAndPayload =
 
 export type GenerateStoryTargetAndPayload =
     SpruceSchemas.Eightbitstories.v2024_09_19.GenerateStoryEmitTargetAndPayload
+
+export type DidGenerateTargetAndPayload =
+    SpruceSchemas.Eightbitstories.v2024_09_19.DidGenerateStoryEmitTargetAndPayload
+
+export type DidFailTargetAndPayload =
+    SpruceSchemas.Eightbitstories.v2024_09_19.DidFailToGenerateStoryEmitTargetAndPayload
