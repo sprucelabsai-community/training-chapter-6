@@ -254,11 +254,93 @@ export default class GenerateSkillViewTest extends AbstractEightBitTest {
 
     @test()
     protected static async clickingGenerateMakesControlsBusy() {
+        await this.loadConfigureStoryAndClickWrite()
+        vcAssert.assertCardIsBusy(this.controlsCardVc)
+    }
+
+    @test()
+    protected static async emittingDidFailRendersAlert() {
+        await this.loadConfigureStoryAndClickWrite()
+        const errorMessage = generateId()
+        const alertVc = await vcAssert.assertRendersAlert(this.vc, () =>
+            this.emitDidFailToGenerate(errorMessage)
+        )
+
+        assert.isEqual(
+            alertVc.alertOptions.message,
+            errorMessage,
+            "You didn't pass the error from the event to your alert!"
+        )
+    }
+
+    @test()
+    protected static async doesNotRenderAlertOnFailAfterBlur() {
+        await this.eventFaker.fakeDidFailToGenerateStory()
+        await this.loadConfigureStoryAndClickWrite()
+        await this.blurVc()
+        await this.emitDidFailToGenerate()
+    }
+
+    @test()
+    protected static async redirectsToWriteViewOnDidGenerate() {
+        await this.loadConfigureStoryAndClickWrite()
+        const storyId = generateId()
+
+        await vcAssert.assertActionRedirects({
+            action: () => this.emitDidGenerateStory(storyId),
+            destination: {
+                id: 'eightbitstories.read',
+                args: {
+                    storyId,
+                },
+            },
+            router: this.views.getRouter(),
+        })
+    }
+
+    @test()
+    protected static async doesNotRedirectToWriteIfNavigatedAway() {
+        await this.eventFaker.fakeDidGenerateStory()
+        await this.loadConfigureStoryAndClickWrite()
+        await this.blurVc()
+        await this.emitDidGenerateStory()
+    }
+
+    private static async blurVc() {
+        await interactor.blur(this.vc)
+    }
+
+    private static emitDidGenerateStory(storyId?: string) {
+        return this.fakedClient.emitAndFlattenResponses(
+            'eightbitstories.did-generate-story::v2024_09_19',
+            {
+                target: {
+                    personId: generateId(),
+                },
+                payload: {
+                    storyId: storyId ?? generateId(),
+                },
+            }
+        )
+    }
+
+    private static emitDidFailToGenerate(errorMessage?: string) {
+        return this.fakedClient.emitAndFlattenResponses(
+            'eightbitstories.did-fail-to-generate-story::v2024_09_19',
+            {
+                target: { personId: generateId() },
+                payload: {
+                    errorMessage: errorMessage ?? generateId(),
+                },
+            }
+        )
+    }
+
+    private static async loadConfigureStoryAndClickWrite() {
         await this.load()
         await this.selectStoryElements(['elves'])
         await this.selectFirstFamilyMember()
         await this.clickWrite()
-        vcAssert.assertCardIsBusy(this.controlsCardVc)
     }
 
     private static async clickWrite() {

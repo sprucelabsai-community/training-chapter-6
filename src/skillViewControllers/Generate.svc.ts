@@ -11,7 +11,7 @@ import {
     Button,
 } from '@sprucelabs/heartwood-view-controllers'
 import { buildSchema } from '@sprucelabs/schema'
-import { SelectChoice } from '@sprucelabs/spruce-core-schemas'
+import { SelectChoice, SpruceSchemas } from '@sprucelabs/spruce-core-schemas'
 import { PublicFamilyMember } from '../eightbitstories.types'
 import StoryElementsCardViewController from '../viewControllers/StoryElementsCard.vc'
 
@@ -36,6 +36,9 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
         this.currentChallengeCardVc = this.CurrentChallengeCardVc()
         this.familyMembersCardVc = this.FamilyMembersCardVc()
         this.controlsCardVc = this.ControlsCardVc()
+
+        this.handleDidFailToGenerate = this.handleDidFailToGenerate.bind(this)
+        this.handleDidGenerate = this.handleDidGenerate.bind(this)
     }
 
     private CurrentChallengeFormVc() {
@@ -187,11 +190,51 @@ export default class GenerateSkillViewController extends AbstractSkillViewContro
             })
 
             await this.router.redirect('eightbitstories.members')
+
             return
         }
 
         this.updateFamilyMemberField(familyMembers)
         this.familyMembersCardVc.setIsBusy(false)
+
+        await client.on(
+            'eightbitstories.did-fail-to-generate-story::v2024_09_19',
+            this.handleDidFailToGenerate
+        )
+
+        await client.on(
+            'eightbitstories.did-generate-story::v2024_09_19',
+            this.handleDidGenerate
+        )
+    }
+
+    private async handleDidGenerate({
+        payload,
+    }: SpruceSchemas.Eightbitstories.v2024_09_19.DidGenerateStoryEmitTargetAndPayload) {
+        const { storyId } = payload
+        await this.router?.redirect('eightbitstories.read', {
+            storyId,
+        })
+    }
+
+    private async handleDidFailToGenerate({
+        payload,
+    }: SpruceSchemas.Eightbitstories.v2024_09_19.DidFailToGenerateStoryEmitTargetAndPayload) {
+        const { errorMessage } = payload
+        await this.alert({ message: errorMessage })
+    }
+
+    public async willBlur() {
+        const client = await this.connectToApi()
+        await client.off(
+            'eightbitstories.did-fail-to-generate-story::v2024_09_19',
+            this.handleDidFailToGenerate
+        )
+
+        await client.off(
+            'eightbitstories.did-generate-story::v2024_09_19',
+            this.handleDidGenerate
+        )
     }
 
     private updateControls() {
