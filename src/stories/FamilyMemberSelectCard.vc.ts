@@ -11,9 +11,10 @@ import { PublicFamilyMember } from '../eightbitstories.types'
 
 export default class FamilyMemberSelectCardViewController extends AbstractViewController<Card> {
     public static id = 'family-member-select-card'
-    protected formVc: FormViewController<FamilyMembersFormSchema>
 
-    private cardVc: CardViewController
+    protected formVc: FormViewController<FamilyMembersFormSchema>
+    protected cardVc: CardViewController
+
     private onChangeHandler?: () => void | Promise<void>
 
     public constructor(
@@ -84,7 +85,7 @@ export default class FamilyMemberSelectCardViewController extends AbstractViewCo
     }
 
     public setIsBusy(isBusy: boolean) {
-        this.formVc.setIsBusy(isBusy)
+        this.cardVc.setIsBusy(isBusy)
     }
 
     public isValid() {

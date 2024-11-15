@@ -9,11 +9,11 @@ import { fake } from '@sprucelabs/spruce-test-fixtures'
 import { assert, generateId, test } from '@sprucelabs/test-utils'
 import { PublicFamilyMember } from '../../../eightbitstories.types'
 import CurrentChallengeCardViewController from '../../../stories/CurrentChallengeCard.vc'
-import FamilyMemberSelectCardViewController from '../../../stories/FamilyMemberSelectCard.vc'
 import GenerateSkillViewController from '../../../stories/Generate.svc'
 import StoryElementSelectCardViewController from '../../../stories/StoryElementSelectCard.vc'
 import AbstractEightBitTest from '../../support/AbstractEightBitTest'
 import { GenerateStoryTargetAndPayload } from '../../support/EventFaker'
+import SpyFamilyMemberSelectCard from './SpyFamilyMemberSelectCard'
 
 @fake.login()
 export default class GenerateSkillViewTest extends AbstractEightBitTest {
@@ -458,12 +458,6 @@ class SpyStoryElementsCard extends StoryElementSelectCardViewController {
 
     public getCardVc() {
         return this.cardVc
-    }
-}
-
-class SpyFamilyMemberSelectCard extends FamilyMemberSelectCardViewController {
-    public getFormVc() {
-        return this.formVc
     }
 }
 
